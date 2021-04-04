@@ -1,3 +1,5 @@
+# Bar Sela - 206902355
+# Bar Weizman - 206492449
 # ------Solve AX=b by using Gauss Elimination------
 
 # Singularity check-by calculating determination
@@ -72,8 +74,7 @@ def Matrix_addition(mat1, mat2):
     :param mat2: second initialized square matrix with values
     :return: result matrix, that will be the addition between mat1 and mat2
     """
-    size = len(
-        mat1)  # doesnt matter what we choose(mat1,mat2,rows or columns), we take into consideration only square matrix
+    size = len(mat1)  # doesnt matter what we choose(mat1,mat2,rows or columns), we take into consideration only square matrix
     result_mat = [([0] * size) for i in range(size)]  # initialize the result matrix with zeros
 
     # iterate through the first matrix rows
@@ -199,27 +200,46 @@ def InvertMatrix(matrix):
     return result
 
 
-# two ways to calculate matrix
-def LU(mat):
-    """
 
-    :param mat:
-    :return:
+def L_fix(mat):
+    """
+    :param mat: matrix with values, that needs to be the 'L' matrix
+    :return: the L(lower triangular) matrix : all elements of the diagonal line equal 1, and above the diagonal its all zeros
+    """
+    for i in range(len(mat)):
+        mat[i][i] = 1
+    return mat
+
+
+def LU_matrix_calculation(mat,b):
+    """
+    description:
+    the function calculates the result by calculating L (lower triangular matrix) and U (upper triangular matrix)
+    :param mat: the given matrix
+    :param b: the result vector
+    :return: vector variables
     """
     size = len(mat)  # doesnt matter if we take len(mat) or len(mat[0]), were talking square matrix.
-    res = Copy_matrix(mat)
+    res = Copy_matrix(mat) # in the whole process, we will consider "res" as the matrix we do all manipulations on, in order not to change the original matrix
     L = [([0] * size) for i in range(size)]  # initialize the matrix with zeros
     for col in range(0, size):
-        pivot = mat[col][col]
-        for row in range(0, size):
-            m = -(mat[row][col] / pivot)  # m is the multiply number
+        for row in range(col+1, size):  # we start at col+1, in order to skip the pivot`s row
+            pivot = res[col][col]  # every iteration our pivot will be changed according to the res matrix
+            m = -(res[row][col] / pivot)  # m is the multiply number
             elementary_mat = Identity(size)
             elementary_mat[row][col] = m  # this is the elementary matrix (the identity matrix and the multiply number)
             res = Matrix_multiplication(elementary_mat, res)  # at the end of the loops, res will be 'U'
-            L = Matrix_addition(InvertMatrix(res), L)
+            elementary_mat[row][col] = m*(-1)  # L is built of -1 elementary matrix (in the 'm' position)
+            L = Matrix_addition(elementary_mat, L)
+            L = L_fix(L)
 
     if Matrix_multiplication(L, res) == mat:
-        pass
+        y = Matrix_multiplication(InvertMatrix(L), b)  # y = L^(-1) * b
+        x = Matrix_multiplication(InvertMatrix(res), y)  # x = U^(-1) * y
+        return x
+    else:
+        raise Exception("Could`nt calculate the L matrix and U matrix")
+
 
 
 def CalcSingularMatrix(matrix, b):
@@ -245,15 +265,23 @@ def CalcMatrix(matrix, b):
 mat1 = [[2, -1, 0],
         [-1, 2, -1],
         [0, -1, 2]]
+
 mat2 = [[4], [6], [8]]
-try:
-    # print(InvertMatrix(mat1))
-    print(CalcSingularMatrix(mat1, mat2))
-except Exception as e:
-    print(e)
 
-mat1 = [[1, 0],
-        [-1, 3]]
+mat3 = [[1, 2, 1],
+        [2, 6, 1],
+        [1, 1, 4]]
 
-mat2 = [[3, 1],
-        [2, 1]]
+
+
+#try:
+#   print(LU_matrix_calculation(mat3, mat2))
+#except Exception as e:
+#    print(e)
+
+#try:
+# print(InvertMatrix(mat1))
+#   print(CalcSingularMatrix(mat1, mat2))
+#except Exception as e:
+#    print(e)
+
