@@ -153,12 +153,12 @@ def ExchangeRows(row1, row2, n):
 def InvertMatrix(matrix):
     """
     description:
-    The function calculate the inverted matrix. suitable for singular matrix-if not singular an exception will be raised
+    The function calculate the inverted matrix. suitable for non-singular(reversible matrix) matrix-if singular an exception will be raised
     :param matrix: the matrix to invert
     :return: inverted matrix
     """
     if len(matrix) != len(matrix[0]):
-        raise Exception("not a singular matrix. there is no inverted matrix")
+        raise Exception("singular matrix. there is no inverted matrix")
     n = len(matrix)
     result = Identity(n)
     for j in range(0, n):
@@ -175,7 +175,7 @@ def InvertMatrix(matrix):
                             pivot = matrix[i][j]
                             break
                     if matrix[i][j] == 0:
-                        raise Exception("not a singular matrix. there is no inverted matrix")
+                        raise Exception("singular matrix. there is no inverted matrix")
 
         for i in range(0, n):
             if i != j:
@@ -200,7 +200,6 @@ def InvertMatrix(matrix):
     return result
 
 
-
 def L_fix(mat):
     """
     :param mat: matrix with values, that needs to be the 'L' matrix
@@ -211,7 +210,7 @@ def L_fix(mat):
     return mat
 
 
-def LU_matrix_calculation(mat,b):
+def LU_matrix_calculation(mat, b):
     """
     description:
     the function calculates the result by calculating L (lower triangular matrix) and U (upper triangular matrix)
