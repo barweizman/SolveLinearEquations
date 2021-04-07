@@ -271,14 +271,14 @@ mat3 = [[1, 2, 1],
         [2, 6, 1],
         [1, 1, 4]]
 
-try:
-   print(LU_matrix_calculation(mat3))
-except Exception as e:
-   print(e)
-
 #try:
-#    CalcMatrix(mat1, b)
-#    CalcMatrix(mat2, b)
+#   print(LU_matrix_calculation(mat3))
 #except Exception as e:
-#    print(e)
+#   print(e)
+
+try:
+    CalcMatrix(mat1, b)
+    CalcMatrix(mat2, b)
+except Exception as e:
+    print(e)
 
