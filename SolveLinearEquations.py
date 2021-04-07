@@ -198,17 +198,7 @@ def InvertMatrix(matrix):
     return inverted
 
 
-def L_fix(mat):
-    """
-    :param mat: matrix with values, that needs to be the 'L' matrix
-    :return: the L(lower triangular) matrix : all elements of the diagonal line equal 1, and above the diagonal its all zeros
-    """
-    for i in range(len(mat)):
-        mat[i][i] = 1
-    return mat
-
-
-def LU_matrix_calculation(mat, b):
+def LU_matrix_calculation(mat):
     """
     description:
     the function calculates the result by calculating L (lower triangular matrix) and U (upper triangular matrix)
@@ -218,7 +208,6 @@ def LU_matrix_calculation(mat, b):
     """
     size = len(mat)  # doesnt matter if we take len(mat) or len(mat[0]), were talking square matrix.
     res = Copy_matrix(mat) # in the whole process, we will consider "res" as the matrix we do all manipulations on, in order not to change the original matrix
-    L = [([0] * size) for i in range(size)]  # initialize the matrix with zeros
     for col in range(0, size):
         for row in range(col+1, size):  # we start at col+1, in order to skip the pivot`s row
             pivot = res[col][col]  # every iteration our pivot will be changed according to the res matrix
@@ -226,14 +215,15 @@ def LU_matrix_calculation(mat, b):
             elementary_mat = Identity(size)
             elementary_mat[row][col] = m  # this is the elementary matrix (the identity matrix and the multiply number)
             res = Matrix_multiplication(elementary_mat, res)  # at the end of the loops, res will be 'U'
-            elementary_mat[row][col] = m*(-1)  # L is built of -1 elementary matrix (in the 'm' position)
-            L = Matrix_addition(elementary_mat, L)
-            L = L_fix(L)
+            if col == 0 and row == 1:  # in order to keep the first elementary matrix, for future calculations
+                L = InvertMatrix(elementary_mat)
+            else:
+                L = Matrix_multiplication(L, InvertMatrix(elementary_mat))
 
     if Matrix_multiplication(L, res) == mat:
-        y = Matrix_multiplication(InvertMatrix(L), b)  # y = L^(-1) * b
-        x = Matrix_multiplication(InvertMatrix(res), y)  # x = U^(-1) * y
-        return x
+        print("^^^^^^ LU Calculation ^^^^^^^")
+        print("L Matrix:", L)
+        print("U Matrix:", res)
     else:
         raise Exception("Could`nt calculate the L matrix and U matrix")
 
@@ -261,7 +251,7 @@ def CalcMatrix(matrix, b):
     :return: if matrix regular print the vector solution else print L and U matrix's
     """
     if CalcDet(matrix) == 0:
-        print("LU")  # just for check
+        LU_matrix_calculation(matrix)
     else:
         print(CalcRegularMatrix(matrix, b))
 
@@ -277,16 +267,18 @@ mat2 = [[4, 5, -6],
         [2, 5, 2],
         [1, 3, 2]]
 
-
-
-#try:
-#   print(LU_matrix_calculation(mat3, mat2))
-#except Exception as e:
-#    print(e)
+mat3 = [[1, 2, 1],
+        [2, 6, 1],
+        [1, 1, 4]]
 
 try:
-    CalcMatrix(mat1, b)
-    CalcMatrix(mat2, b)
+   print(LU_matrix_calculation(mat3))
 except Exception as e:
-    print(e)
+   print(e)
+
+#try:
+#    CalcMatrix(mat1, b)
+#    CalcMatrix(mat2, b)
+#except Exception as e:
+#    print(e)
 
