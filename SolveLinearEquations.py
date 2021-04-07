@@ -160,44 +160,42 @@ def InvertMatrix(matrix):
     if len(matrix) != len(matrix[0]):
         raise Exception("singular matrix. there is no inverted matrix")
     n = len(matrix)
-    result = Identity(n)
+    inverted = Identity(n)
     for j in range(0, n):
         for i in range(0, n):
             if i == j:
-                if matrix[i][j] != 0:
-                    pivot = matrix[i][j]
-                else:
-                    for k in range(i + 1, n):
-                        if matrix[k][j] != 0:
-                            elementarymatrix = ExchangeRows(k, i, n)
-                            matrix = Matrix_multiplication(elementarymatrix, matrix)
-                            result = Matrix_multiplication(elementarymatrix, result)
-                            pivot = matrix[i][j]
-                            break
-                    if matrix[i][j] == 0:
-                        raise Exception("singular matrix. there is no inverted matrix")
+                pivot = matrix[i][j]
+                for k in range(i + 1, n):
+                    if abs(matrix[k][j]) > abs(pivot):  # pivoting
+                        elementary_matrix = ExchangeRows(k, i, n)
+                        matrix = Matrix_multiplication(elementary_matrix, matrix)
+                        inverted = Matrix_multiplication(elementary_matrix, inverted)
+                        pivot = matrix[i][j]
+
+                if matrix[i][j] == 0:
+                    raise Exception("singular matrix. there is no inverted matrix")
 
         for i in range(0, n):
             if i != j:
                 if matrix[i][j] != 0:
-                    elementarymatrix = ResetOrgan(i, j, n, pivot, matrix[i][j])
-                    matrix = Matrix_multiplication(elementarymatrix, matrix)
-                    result = Matrix_multiplication(elementarymatrix, result)
+                    elementary_matrix = ResetOrgan(i, j, n, pivot, matrix[i][j])
+                    matrix = Matrix_multiplication(elementary_matrix, matrix)
+                    inverted = Matrix_multiplication(elementary_matrix, inverted)
 
     for i in range(0, n):
         if matrix[i][i] != 1:
             if matrix[i][i] < 0:
-                elementarymatrix = MultiplyRow(i, -1, n)
-                matrix = Matrix_multiplication(elementarymatrix, matrix)
-                result = Matrix_multiplication(elementarymatrix, result)
+                elementary_matrix = MultiplyRow(i, -1, n)
+                matrix = Matrix_multiplication(elementary_matrix, matrix)
+                inverted = Matrix_multiplication(elementary_matrix, inverted)
 
-            elementarymatrix = MultiplyRow(i, 1 / matrix[i][i], n)
-            matrix = Matrix_multiplication(elementarymatrix, matrix)
-            result = Matrix_multiplication(elementarymatrix, result)
+            elementary_matrix = MultiplyRow(i, 1 / matrix[i][i], n)
+            matrix = Matrix_multiplication(elementary_matrix, matrix)
+            inverted = Matrix_multiplication(elementary_matrix, inverted)
     for row in range(n):
         for col in range(n):
-            result[row][col] = round(result[row][col], 2)
-    return result
+            inverted[row][col] = round(inverted[row][col], 2)
+    return inverted
 
 
 def L_fix(mat):
@@ -240,8 +238,7 @@ def LU_matrix_calculation(mat, b):
         raise Exception("Could`nt calculate the L matrix and U matrix")
 
 
-
-def CalcSingularMatrix(matrix, b):
+def CalcRegularMatrix(matrix, b):
     """
     description:
     the function calculate the result by multiply the inverted matrix and the result vector
@@ -254,10 +251,19 @@ def CalcSingularMatrix(matrix, b):
 
 # main function to calculate matrix
 def CalcMatrix(matrix, b):
+    """
+    description:
+    the function check if the determinant of param matrix. if the matrix is regular the function find the result of
+    multiplication of the inverted matrix and vector b.
+    if matrix is not regular the function print L and U matrix's
+    :param matrix:the selected matrix
+    :param b: the result vector
+    :return: if matrix regular print the vector solution else print L and U matrix's
+    """
     if CalcDet(matrix) == 0:
-        CalcSingularMatrix(matrix, b)
+        print("LU")  # just for check
     else:
-        pass
+        print(CalcRegularMatrix(matrix, b))
 
 
 # driver
@@ -265,11 +271,11 @@ mat1 = [[2, -1, 0],
         [-1, 2, -1],
         [0, -1, 2]]
 
-mat2 = [[4], [6], [8]]
+b = [[4], [6], [8]]
 
-mat3 = [[1, 2, 1],
-        [2, 6, 1],
-        [1, 1, 4]]
+mat2 = [[4, 5, -6],
+        [2, 5, 2],
+        [1, 3, 2]]
 
 
 
@@ -278,9 +284,9 @@ mat3 = [[1, 2, 1],
 #except Exception as e:
 #    print(e)
 
-#try:
-# print(InvertMatrix(mat1))
-#   print(CalcSingularMatrix(mat1, mat2))
-#except Exception as e:
-#    print(e)
+try:
+    CalcMatrix(mat1, b)
+    CalcMatrix(mat2, b)
+except Exception as e:
+    print(e)
 
