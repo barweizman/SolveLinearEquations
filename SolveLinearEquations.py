@@ -2,6 +2,35 @@
 # Bar Weizman - 206492449
 # ------Solve AX=b by using Gauss Elimination------
 
+# Cond A
+def CalcConditionNumber(matrix):
+    """
+    description
+    calculation of the condition number by using the infinity norm
+    :param matrix: the matrix
+    :return: condition number
+    """
+    norm_matrix = 0
+    norm_inverted = 0
+    sum_line = 0
+    row = len(matrix)
+    col = len(matrix[0])
+    for j in range(0, col):
+        for i in range(0, row):
+            sum_line += abs(matrix[i][j])
+        if sum_line > norm_matrix:
+            norm_matrix = sum_line
+
+    inverted_matrix = InvertMatrix(matrix)
+    for j in range(0, col):
+        for i in range(0, row):
+            sum_line += abs(inverted_matrix[i][j])
+        if sum_line > norm_inverted:
+            norm_inverted = sum_line
+
+    return norm_matrix * norm_inverted
+
+
 # Singularity check-by calculating determination
 def CalcDet(matrix):
     """
@@ -74,7 +103,8 @@ def Matrix_addition(mat1, mat2):
     :param mat2: second initialized square matrix with values
     :return: result matrix, that will be the addition between mat1 and mat2
     """
-    size = len(mat1)  # doesnt matter what we choose(mat1,mat2,rows or columns), we take into consideration only square matrix
+    size = len(
+        mat1)  # doesnt matter what we choose(mat1,mat2,rows or columns), we take into consideration only square matrix
     result_mat = [([0] * size) for i in range(size)]  # initialize the result matrix with zeros
 
     # iterate through the first matrix rows
@@ -207,10 +237,23 @@ def LU_matrix_calculation(mat):
     :return: vector variables
     """
     size = len(mat)  # doesnt matter if we take len(mat) or len(mat[0]), were talking square matrix.
-    res = Copy_matrix(mat) # in the whole process, we will consider "res" as the matrix we do all manipulations on, in order not to change the original matrix
+    res = Copy_matrix(
+        mat)  # in the whole process, we will consider "res" as the matrix we do all manipulations on, in order not to change the original matrix
+
     for col in range(0, size):
-        for row in range(col+1, size):  # we start at col+1, in order to skip the pivot`s row
-            pivot = res[col][col]  # every iteration our pivot will be changed according to the res matrix
+        pivot = res[col][col]  # every iteration our pivot will be changed according to the res
+        if pivot == 0 and col != size - 1:
+            for row in range(col + 1, size):
+                if res[row][col] != 0:
+                    elementary_matrix = ExchangeRows(row, col, size)
+                    res = Matrix_multiplication(elementary_matrix, res)
+                    mat = Matrix_multiplication(elementary_matrix, mat)
+                    pivot = res[col][col]
+                    break
+        if pivot == 0 and col != size - 1:
+            raise Exception("Could`nt calculate the L matrix and U matrix1")
+
+        for row in range(col + 1, size):  # we start at col+1, in order to skip the pivot`s row
             m = -(res[row][col] / pivot)  # m is the multiply number
             elementary_mat = Identity(size)
             elementary_mat[row][col] = m  # this is the elementary matrix (the identity matrix and the multiply number)
@@ -236,6 +279,7 @@ def CalcRegularMatrix(matrix, b):
     :param b: the result vector
     :return:the Vector variables
     """
+    print("result vector: ")
     return Matrix_multiplication(InvertMatrix(matrix), b)
 
 
@@ -254,6 +298,8 @@ def CalcMatrix(matrix, b):
         LU_matrix_calculation(matrix)
     else:
         print(CalcRegularMatrix(matrix, b))
+        print("Cond(A)=", end=' ')
+        print(CalcConditionNumber(matrix))
 
 
 # driver
@@ -267,18 +313,17 @@ mat2 = [[4, 5, -6],
         [2, 5, 2],
         [1, 3, 2]]
 
-mat3 = [[1, 2, 1],
-        [2, 6, 1],
-        [1, 1, 4]]
+mat3 = [[0, 2, -1],
+        [3, -2, 1],
+        [3, 2, -1]]
 
-#try:
-#   print(LU_matrix_calculation(mat3))
-#except Exception as e:
-#   print(e)
-
+mat4 = [[0, 2, -1],
+        [3, -2, 1],
+        [3, 2, 1]]
 try:
     CalcMatrix(mat1, b)
     CalcMatrix(mat2, b)
+    CalcMatrix(mat3, b)
+    CalcMatrix(mat4, b)
 except Exception as e:
     print(e)
-
