@@ -20,6 +20,7 @@ def CalcConditionNumber(matrix):
             sum_line += abs(matrix[i][j])
         if sum_line > norm_matrix:
             norm_matrix = sum_line
+        sum_line = 0 # reset for every line
 
     inverted_matrix = InvertMatrix(matrix)
     for j in range(0, col):
@@ -27,8 +28,21 @@ def CalcConditionNumber(matrix):
             sum_line += abs(inverted_matrix[i][j])
         if sum_line > norm_inverted:
             norm_inverted = sum_line
+        sum_line = 0  # reset for every line
 
     return norm_matrix * norm_inverted
+
+
+# Print matrix
+def printMatrix(matrix):
+    """
+    description:
+    print matrix as a rows and columns
+    :param matrix: the printed matrix
+    """
+    for row in matrix:
+        print('', end='\t\t\t\t')
+        print(row, end='\n')
 
 
 # Singularity check-by calculating determination
@@ -94,24 +108,6 @@ def Matrix_multiplication(mat1, mat2):
             # iterate through the second matrix rows
             for row2 in range(0, len(mat2)):
                 result_mat[row1][col2] += mat1[row1][row2] * mat2[row2][col2]
-    return result_mat
-
-
-def Matrix_addition(mat1, mat2):
-    """
-    :param mat1: first initialized square matrix with values
-    :param mat2: second initialized square matrix with values
-    :return: result matrix, that will be the addition between mat1 and mat2
-    """
-    size = len(
-        mat1)  # doesnt matter what we choose(mat1,mat2,rows or columns), we take into consideration only square matrix
-    result_mat = [([0] * size) for i in range(size)]  # initialize the result matrix with zeros
-
-    # iterate through the first matrix rows
-    for row in range(0, len(mat1)):
-        # iterate through the first matrix columns
-        for col in range(0, len(mat1[0])):
-            result_mat[row][col] = mat1[row][col] + mat2[row][col]
     return result_mat
 
 
@@ -265,8 +261,10 @@ def LU_matrix_calculation(mat):
 
     if Matrix_multiplication(L, res) == mat:
         print("^^^^^^ LU Calculation ^^^^^^^")
-        print("L Matrix:", L)
-        print("U Matrix:", res)
+        print("L Matrix:")
+        printMatrix(L)
+        print("U Matrix:")
+        printMatrix(res)
     else:
         raise Exception("Could`nt calculate the L matrix and U matrix")
 
@@ -279,7 +277,6 @@ def CalcRegularMatrix(matrix, b):
     :param b: the result vector
     :return:the Vector variables
     """
-    print("result vector: ")
     return Matrix_multiplication(InvertMatrix(matrix), b)
 
 
@@ -297,7 +294,8 @@ def CalcMatrix(matrix, b):
     if CalcDet(matrix) == 0:
         LU_matrix_calculation(matrix)
     else:
-        print(CalcRegularMatrix(matrix, b))
+        print("result vector: ")
+        printMatrix(CalcRegularMatrix(matrix, b))
         print("Cond(A)=", end=' ')
         print(CalcConditionNumber(matrix))
 
